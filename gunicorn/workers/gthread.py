@@ -297,11 +297,11 @@ class ThreadWorker(base.Worker):
         return (False, conn)
 
     def handle_request(self, req, conn):
+        request_start = datetime.now()
         environ = {}
         resp = None
         try:
             self.cfg.pre_request(self, req)
-            request_start = datetime.now()
             resp, environ = wsgi.create(req, conn.sock, conn.client,
                     conn.server, self.cfg)
             environ["wsgi.multithread"] = True
