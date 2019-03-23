@@ -110,7 +110,7 @@ class ThreadWorker(base.Worker):
     def enqueue_req(self, conn):
         conn.init()
         # submit the connection to a worker
-        fs = self.tpool.submit(self.handle, conn)
+        fs = self.tpool.submit(self.handle, conn, datetime.now())
         self._wrap_future(fs, conn)
 
     def accept(self, server, listener):
@@ -258,8 +258,9 @@ class ThreadWorker(base.Worker):
             self.nr_conns -= 1
             fs.conn.close()
 
-    def handle(self, conn):
+    def handle(self, conn, enqueued_at):
         request_start = datetime.now()
+        self.log.debug(f'Request enqueued: at={enqueued_at}, duration={request_start-enqueued_at}')
         keepalive = False
         req = None
         try:
