@@ -325,8 +325,10 @@ class ThreadWorker(base.Worker):
                         resp.write(item)
 
                 resp.close()
-                request_time = datetime.now() - request_start
-                self.log.access(resp, req, environ, request_time)
+                request_end = datetime.now()
+                request_duration = request_end- request_start
+                self.log.debug(f"start={request_start}, end={request_end}, duration={request_duration}")
+                self.log.access(resp, req, environ, request_duration)
             finally:
                 if hasattr(respiter, "close"):
                     respiter.close()
