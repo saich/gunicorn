@@ -259,6 +259,7 @@ class ThreadWorker(base.Worker):
             fs.conn.close()
 
     def handle(self, conn):
+        request_start = datetime.now()
         keepalive = False
         req = None
         try:
@@ -268,6 +269,9 @@ class ThreadWorker(base.Worker):
 
             # handle the request
             keepalive = self.handle_request(req, conn)
+            request_end = datetime.now()
+            request_duration = request_end- request_start
+            self.log.debug(f"handle: start={request_start}, end={request_end}, duration={request_duration}")
             if keepalive:
                 return (keepalive, conn)
         except http.errors.NoMoreData as e:
@@ -327,7 +331,7 @@ class ThreadWorker(base.Worker):
                 resp.close()
                 request_end = datetime.now()
                 request_duration = request_end- request_start
-                self.log.debug(f"start={request_start}, end={request_end}, duration={request_duration}")
+                self.log.debug(f"handle_request: start={request_start}, end={request_end}, duration={request_duration}")
                 self.log.access(resp, req, environ, request_duration)
             finally:
                 if hasattr(respiter, "close"):
